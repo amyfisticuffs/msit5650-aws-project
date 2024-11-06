@@ -4,13 +4,13 @@ body {
 }
 
 .header-div {
-  height: 200px;
+  height: 150px;
   margin: auto;
   overflow: scroll;
   font-weight: bold;
   background-image: url("../welcome.png");
   background-repeat: no-repeat;
-  background-size: 100% 100%;
+  /* background-size: 100% 100%;*/
   color: #0A2C5C;
 }
 
