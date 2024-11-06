@@ -3,19 +3,9 @@ body {
   text-align: center;
 }
 
-.header-div {
-  height: 150px;
-  margin: auto;
-  overflow: scroll;
-  font-weight: bold;
-  background-image: url("../welcome.png");
-  background-repeat: no-repeat;
-  /* background-size: 100% 100%;*/
-  color: #0A2C5C;
-}
-
-.header-div a {
-  color: #0A2C5C;
+#logo-container img {
+  width: 100%;
+  height: auto;
 }
 
 .giant {
