@@ -8,6 +8,11 @@ body {
   height: auto;
 }
 
+textarea:focus { 
+  outline: none !important;
+  border-color: #1CAAEE;
+}
+
 .giant {
   font-size: 6rem;
   margin: auto;
