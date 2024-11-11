@@ -1,7 +1,10 @@
 const path = require('path');
-const {fileURLTOPath} = require('url');
+const { fileURLTOPath } = require('url');
 const express = require('express');
 const { TranslateClient, TranslateTextCommand } = require('@aws-sdk/client-translate');
+const { StartSpeechSynthesisTaskCommand } = require('@aws-sdk/client-polly');
+const { PollyClient } = require('@aws-sdk/client-polly');
+const REGION = "us-east-1";
 
 const app = express();
 app.use(express.static('public')); // this is added!
@@ -9,11 +12,8 @@ app.use(express.json());
 app.use('/css', express.static('public/stylesheets'));
 
 
-const region = 'us-east-1';
-
-const translateClient = new TranslateClient({
-  region: "us-east-1"
-});
+const translateClient = new TranslateClient({ region: REGION });
+const pollyClient = new PollyClient({ region: REGION });
 
 
 app.get('/', (req, res) => {
@@ -37,6 +37,28 @@ app.post('/translate', async (req, res) => {
         console.error('Translation error:', error);
         res.status(500).json({ message: 'Translation error' });
     }
+});
+
+app.post('/polly', async (req, res) => {
+    const {languageCode, voidId, text } = req.body;
+
+    // Create the parameters
+    const params = {
+        OutputFormat: "mp3",
+        OutputS3BucketName: "aws-project-ahf",
+        LanguageCode: languageCode,
+        Text: text,
+        TextType: "text",
+        VoiceId: voidId,
+        SampleRate: "22050",
+    };
+
+    try {
+        const response = await pollyClient.send(new StartSpeechSynthesisTaskCommand(params));
+        console.log(`Success, audio file ${response} added to ${params.OutputS3BucketName}`);
+      } catch (err) {
+        console.log("Error putting object", err);
+      }
 });
 
 const PORT = 8080;

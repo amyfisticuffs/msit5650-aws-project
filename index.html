@@ -34,15 +34,12 @@
                 </td>
                 <td>
                     <div class="form-group">
-                        <textarea class="textbox-input" id="destinationText" placeholder="Translation" readonly></textarea>
+                        <textarea class="textbox-input" id="destinationText" placeholder="Translation"
+                            readonly></textarea>
                         <select class="form-select" id="destinationLanguage" name="destinationLanguage">
                             <option value="fr">French</option>
                             <option value="es">Spanish</option>
                             <option value="de">German</option>
-                            <option value="ja">Japanese</option>
-                            <option value="zh">Chinese</option>
-                            <option value="ko">Korean</option>
-                            <option value="en">English</option>
                         </select>
                     </div>
                 </td>
@@ -50,8 +47,8 @@
         </table>
         <!-- Translate Button with Hover Effect -->
         <div class="center">
-            <button id="translateButton" class="btn btn-outline-dark"
-                type="button">Translate</button>
+            <button id="translateButton" class="btn btn-outline-dark" type="button">Translate</button>
+            <button id="pollyButton" class="btn btn-outline-dark" type="button">Speak</button>
         </div>
     </form>
 
@@ -77,7 +74,7 @@
             const targetLang = destinationLanguageSelect.value; // Correct variable name
             const text = sourceText.value;
 
-            // Call API
+            // Call Translate API
             const response = await fetch('/translate', {
                 method: 'POST',
                 headers: {
@@ -91,20 +88,80 @@
             });
 
             try {
-                console.log('Button clicked');
+                console.log('Translate Button clicked');
                 const data = await response.json();
                 console.log(data);
                 destinationText.value = data.TranslatedText;
                 console.log('Translation applied');
             } catch (error) {
                 console.error('Error parsing JSON:', error);
+                return;
             }
 
         }
 
         translateButton.addEventListener('click', translate);
+
+        async function polly() {
+            // Get input values
+            const targetLang = destinationLanguageSelect.value; // Correct variable name
+            const text = destinationText.value;
+
+            if (!text) {
+                console.log('No translation available');
+                return;
+            }
+
+            langCode = 'fr-FR';
+            voice = 'Léa';
+            console.log('TargetLang is', targetLang);
+            switch (targetLang) {
+                case 'fr':
+                    langCode = 'fr-FR';
+                    voice = 'Mathieu';
+                    break;
+                case 'de':
+                    langCode = 'de-DE';
+                    voice = 'Vicki';
+                    break;
+                case 'es':
+                    langCode = 'es-ES';
+                    voice = 'Lupe'
+                    break;
+                default:
+                    console.error('No language specified');
+                    return;
+            }
+            // Call Polly API
+            const response = await fetch('/polly', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    languageCode: langCode,
+                    voidId: voice,
+                    text: text
+                })
+            });
+
+            try {
+                console.log('Speak Button clicked');
+                const data = await response.json();
+                console.log(data);
+                console.log('Audio file created');
+            } catch (error) {
+                console.error('Error parsing JSON:', error);
+                return;
+            }
+        }
+
+        pollyButton.addEventListener('click', polly);
+
+
     </script>
 
 </body>
 
 </html>
+

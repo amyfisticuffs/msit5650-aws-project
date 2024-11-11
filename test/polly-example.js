@@ -13,6 +13,7 @@ const pollyClient = new PollyClient({ region: REGION });
 const params = {
   OutputFormat: "mp3",
   OutputS3BucketName: "aws-project-ahf",
+  LanguageCode: "en-IE",
   Text: "Hello Owen, How are you?",
   TextType: "text",
   VoiceId: "Joanna",
@@ -21,8 +22,8 @@ const params = {
 
 const run = async () => {
   try {
-    await pollyClient.send(new StartSpeechSynthesisTaskCommand(params));
-    console.log(`Success, audio file added to ${params.OutputS3BucketName}`);
+    const response = await pollyClient.send(new StartSpeechSynthesisTaskCommand(params));
+    console.log(`Success, audio file ${response} added to ${params.OutputS3BucketName}`);
   } catch (err) {
     console.log("Error putting object", err);
   }
