@@ -55,7 +55,8 @@ app.post('/polly', async (req, res) => {
 
     try {
         const response = await pollyClient.send(new StartSpeechSynthesisTaskCommand(params));
-        console.log(`Success, audio file ${response} added to ${params.OutputS3BucketName}`);
+	const outputUri = response.SynthesisTask.OutputUri;
+        console.log(`Success, audio file ${outputUri} added to ${params.OutputS3BucketName}`);
       } catch (err) {
         console.log("Error putting object", err);
       }
