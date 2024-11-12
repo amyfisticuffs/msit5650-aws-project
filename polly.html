@@ -150,23 +150,20 @@
             });
 
             try {
-
-                console.log('Audio button clicked');
+                // Make a request to your Node.js backend
+                const response = await fetch('/speak');
                 const data = await response.json();
-                //const response = await fetch('/speak');
 
-                // Create a blob URL from the response stream
-                const audioBlob = await data.AudioStream;
-                const audioUrl = URL.createObjectURL(audioBlob);
-
-                // Set the audio source and play
-                const audioPlayer = document.getElementById('audioPlayer');
-                audioPlayer.src = audioUrl;
-                audioPlayer.play();
-                console.log('Audio is playing');
+                if (data.success) {
+                    console.log('Audio file received, starting playback...');
+                    const audio = new Audio(data.audioContent);
+                    await audio.play();
+                    console.log('Audio is playing');
+                } else {
+                    console.error('Failed to get audio:', data.message);
+                }
             } catch (error) {
-                console.error('Error parsing JSON:', error);
-                return;
+                console.error('Error fetching audio:', error);
             }
         }
 

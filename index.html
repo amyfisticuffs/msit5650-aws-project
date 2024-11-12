@@ -74,7 +74,7 @@
             const targetLang = destinationLanguageSelect.value; // Correct variable name
             const text = sourceText.value;
 
-	    if (!text) {
+            if (!text) {
                 console.log('No input text available');
                 return;
             }
@@ -150,23 +150,23 @@
             });
 
             try {
-		console.log('Speak Button clicked');
+                console.log('Speak Button clicked');
                 const data = await response.json();
-		uri = data.OutputUri;
-                console.log('Audio file created '+uri);
+                uri = data.OutputUri;
+                console.log('Audio file created ' + uri);
                 // const audio = new Audio("https://s3.us-east-1.amazonaws.com/aws-project-ahf/aefce073-f293-4cde-90fc-25a296d2aa9d.mp3");
-		const url = new URL(uri);
+                const url = new URL(uri);
                 const audio = new Audio(url.href);
                 // Handle any playback errors
                 audio.addEventListener('error', (e) => {
                     console.error('Error playing audio:', e);
                 });
 
-		try {
-                 await audio.play();
-                 console.log('Audio is playing');
+                try {
+                    await audio.play();
+                    console.log('Audio is playing');
                 } catch (playError) {
-                 console.error('Failed to play audio:', playError);
+                    console.error('Failed to play audio:', playError);
                 }
             } catch (error) {
                 console.error('Error parsing JSON:', error);
@@ -182,4 +182,3 @@
 </body>
 
 </html>
-

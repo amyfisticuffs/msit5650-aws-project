@@ -3,7 +3,7 @@ const { fileURLTOPath } = require('url');
 const express = require('express');
 const { TranslateClient, TranslateTextCommand } = require('@aws-sdk/client-translate');
 const { StartSpeechSynthesisTaskCommand } = require('@aws-sdk/client-polly');
-const { PollyClient, SynthesizeSpeechCommand  } = require('@aws-sdk/client-polly');
+const { PollyClient, SynthesizeSpeechCommand } = require('@aws-sdk/client-polly');
 const { getSignedUrl } = require("@aws-sdk/s3-request-presigner");
 const { S3Client, GetObjectCommand } = require("@aws-sdk/client-s3");
 const REGION = "us-east-1";
@@ -56,32 +56,32 @@ app.post('/polly', async (req, res) => {
         VoiceId: voidId,
         SampleRate: "22050",
     };
-   
+
     const command = new SynthesizeSpeechCommand(params);
 
     try {
         const response = await pollyClient.send(command);
-    const audioStream = response.AudioStream;
+        const audioStream = response.AudioStream;
 
-    if (audioStream) {
-      // Read the audio stream and convert it to Base64
-      const chunks = [];
-      for await (const chunk of audioStream) {
-        chunks.push(chunk);
-      }
+        if (audioStream) {
+            // Read the audio stream and convert it to Base64
+            const chunks = [];
+            for await (const chunk of audioStream) {
+                chunks.push(chunk);
+            }
 
-      const audioBuffer = Buffer.concat(chunks);
-      const base64Audio = audioBuffer.toString('base64');
+            const audioBuffer = Buffer.concat(chunks);
+            const base64Audio = audioBuffer.toString('base64');
 
-      // Return the Base64-encoded audio in JSON format
-      res.json({
-        success: true,
-        audioContent: `data:audio/mpeg;base64,${base64Audio}`
-      });
-    } else {
-	    console.error("Polly error:", err);
-    res.status(500).json({ success: false, error: err.message });
-    }
+            // Return the Base64-encoded audio in JSON format
+            res.json({
+                success: true,
+                audioContent: `data:audio/mpeg;base64,${base64Audio}`
+            });
+        } else {
+            console.error("Polly error:", err);
+            res.status(500).json({ success: false, error: err.message });
+        }
     } catch (err) {
         console.log("Error putting object", err);
     }
