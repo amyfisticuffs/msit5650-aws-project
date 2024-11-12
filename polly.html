@@ -152,11 +152,10 @@
             try {
 		console.log('Speak Button clicked');
                 const data = await response.json();
-		uri = data.OutputUri;
-                console.log('Audio file created '+uri);
+		url = data.AudioUrl;
+                console.log('Audio file created '+url);
                 // const audio = new Audio("https://s3.us-east-1.amazonaws.com/aws-project-ahf/aefce073-f293-4cde-90fc-25a296d2aa9d.mp3");
-		const url = new URL(uri);
-                const audio = new Audio(url.href);
+                const audio = new Audio(url);
                 // Handle any playback errors
                 audio.addEventListener('error', (e) => {
                     console.error('Error playing audio:', e);
