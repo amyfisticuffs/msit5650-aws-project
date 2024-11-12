@@ -74,6 +74,10 @@
             const targetLang = destinationLanguageSelect.value; // Correct variable name
             const text = sourceText.value;
 
+	    if (!text) {
+                console.log('No input text available');
+                return;
+            }
             // Call Translate API
             const response = await fetch('/translate', {
                 method: 'POST',
@@ -146,10 +150,23 @@
             });
 
             try {
-                console.log('Speak Button clicked');
+		console.log('Speak Button clicked');
                 const data = await response.json();
-                console.log(data);
-                console.log('Audio file created');
+		uri = data.OutputUri;
+                console.log('Audio file created '+uri);
+                const audio = new Audio(uri);
+
+                // Handle any playback errors
+                audio.addEventListener('error', (e) => {
+                    console.error('Error playing audio:', e);
+                });
+
+		try {
+                 await audio.play();
+                 console.log('Audio is playing');
+                } catch (playError) {
+                 console.error('Failed to play audio:', playError);
+                }
             } catch (error) {
                 console.error('Error parsing JSON:', error);
                 return;
