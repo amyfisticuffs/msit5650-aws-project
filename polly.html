@@ -155,9 +155,20 @@
                 const data = await response.json();
 
                 if (data.success) {
-                    console.log('Audio file received, starting playback...');
-                    const audio = new Audio(data.audioContent);
-                    await audio.play();
+                    const byteCharacters = atob(data.AudioStream);
+                    const byteNumbers = new Array(byteCharacters.length);
+                    for (let i = 0; i < byteCharacters.length; i++) {
+                        byteNumbers[i] = byteCharacters.charCodeAt(i);
+                    }
+                    const byteArray = new Uint8Array(byteNumbers);
+                    const blob = new Blob([byteArray], { type: "audio/mpeg" }); // Replace 'audio/mpeg' with the correct MIME type if needed
+
+                    // Create URL from Blob
+                    const url = URL.createObjectURL(blob);
+
+                    // Create and play the audio
+                    const audio = new Audio(url);
+                    audio.play();
                     console.log('Audio is playing');
                 } else {
                     console.error('Failed to get audio:', data.message);
