@@ -44,7 +44,7 @@ app.post('/translate', async (req, res) => {
 });
 
 app.post('/polly', async (req, res) => {
-    const {languageCode, voidId, text } = req.body;
+    const { languageCode, voidId, text } = req.body;
 
     // Create the parameters
     const params = {
@@ -59,18 +59,12 @@ app.post('/polly', async (req, res) => {
 
     try {
         const response = await pollyClient.send(new StartSpeechSynthesisTaskCommand(params));
-	const outputUri = response.SynthesisTask.OutputUri;
-        console.log(outputUri);
-	const baseUrl = 'https://s3.us-east-1.amazonaws.com/aws-project-ahf/';
-        const objectKey = outputUri.replace(baseUrl, '');
-	console.log('Object key: '+objectKey);
-	const audiourl = await getPresignedUrl("aws-project-ahf", objectKey, 3600);
-	console.log(audiourl);
-	res.status(200).json({ AudioUrl: audiourl });
+        console.log(response);
+        res.status(200).json({ AudioStream: response.AudioStream });
         console.log(`Success, audio file ${outputUri} added to ${params.OutputS3BucketName}`);
-      } catch (err) {
+    } catch (err) {
         console.log("Error putting object", err);
-      }
+    }
 });
 
 async function getPresignedUrl(bucketName, objectKey, expirationInSeconds) {
@@ -79,7 +73,7 @@ async function getPresignedUrl(bucketName, objectKey, expirationInSeconds) {
 
         Bucket: bucketName,
 
-        Key: objectKey 
+        Key: objectKey
     });
 
     console.log(command);
