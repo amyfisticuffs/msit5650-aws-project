@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Polly Speech Synthesizer</title>
+</head>
+<body>
+<h1>AWS Polly Speech Demo</h1>
+<button id="speakButton">Speak</button>
+<audio id="audioPlayer" controls></audio>
+
+<script>
+  document.getElementById('speakButton').addEventListener('click', async () => {
+    try {
+      console.log('Speak button clicked');
+      const response = await fetch('/speak');
+
+      if (!response.ok) {
+        throw new Error('Failed to fetch audio stream');
+      }
+
+      // Create a blob URL from the response stream
+      const audioBlob = await response.blob();
+      const audioUrl = URL.createObjectURL(audioBlob);
+
+      // Set the audio source and play
+      const audioPlayer = document.getElementById('audioPlayer');
+      audioPlayer.src = audioUrl;
+      audioPlayer.play();
+      console.log('Audio is playing');
+    } catch (error) {
+      console.error('Error playing audio:', error);
+    }
+  });
+</script>
+</body>
+</html>
+
