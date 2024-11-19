@@ -9,7 +9,6 @@ const REGION = "us-east-1";
 const app = express();
 app.use(express.static('public')); // this is added!
 app.use(express.json());
-app.use('/css', express.static('public/stylesheets'));
 
 
 const translateClient = new TranslateClient({ region: REGION });
@@ -27,7 +26,7 @@ app.post('/translate', async (req, res) => {
         const command = new TranslateTextCommand({
             SourceLanguageCode: sourceLanguage,
             TargetLanguageCode: targetLanguage,
-            Text: text
+            Text: text,
         });
 
 
@@ -63,7 +62,7 @@ app.post('/polly', async (req, res) => {
       }
 });
 
-const PORT = 8080;
+const PORT = 3000;
 app.listen(PORT, () => {
     console.log(`Server started on port ${PORT}`);
 });

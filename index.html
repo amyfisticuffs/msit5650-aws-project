@@ -7,7 +7,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet"
         integrity="sha384-rbsA2VBKQhggwzxH7pPCaAqO46MgnOM80zW1RWuH61DGLwZJEdK2Kadq2F9CUG65" crossorigin="anonymous">
-    <link type="text/css" rel="stylesheet" href="./mystyles.css">
+    <link type="text/css" rel="stylesheet" href="/mystyles.css">
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"
         integrity="sha384-kenU1KFdBIe4zVF0s0G1M5b4hcpxyD9F7jL+jjXkk+Q2h455rYXK/7HAuoJl+0I4"
         crossorigin="anonymous"></script>
@@ -26,7 +26,7 @@
             <tr>
                 <td>
                     <div class="form-group">
-                        <textarea class="textbox-input" autofocus="autofocus" id="sourceText"></textarea>
+                        <textarea class="textbox-input" autofocus="autofocus" id="sourceText" maxlength="60"></textarea>
                         <select class="form-select" id="sourceLanguage" name="sourceLanguage">
                             <option value="auto">Detect Language</option>
                         </select>
@@ -154,9 +154,9 @@
                 const data = await response.json();
                 uri = data.OutputUri;
                 console.log('Audio file created ' + uri);
-                // const audio = new Audio("https://s3.us-east-1.amazonaws.com/aws-project-ahf/aefce073-f293-4cde-90fc-25a296d2aa9d.mp3");
-                const url = new URL(uri);
-                const audio = new Audio(url.href);
+                console.log('Type' + typeof uri);
+                // const audio = new Audio("https://aws-project-ahf.s3.us-east-1.amazonaws.com/86649d60-6dd3-4d07-b604-78ae5744f600.mp3");
+                audio = new Audio(uri);
                 // Handle any playback errors
                 audio.addEventListener('error', (e) => {
                     console.error('Error playing audio:', e);
