@@ -67,6 +67,8 @@
         const sourceLanguageSelect = document.getElementById('sourceLanguage'); // Correct variable name
         const destinationLanguageSelect = document.getElementById('destinationLanguage'); // Correct variable name
         const translateButton = document.getElementById('translateButton');
+        const pollyButton = document.getElementById('pollyButton');
+
 
         async function translate() {
             // Get input values
@@ -105,6 +107,10 @@
         }
 
         translateButton.addEventListener('click', translate);
+
+        function delay(ms) {
+            return new Promise(resolve => setTimeout(resolve, ms));
+        }
 
         async function polly() {
             // Get input values
@@ -156,11 +162,14 @@
                 console.log('Audio file created ' + uri);
                 console.log('Type' + typeof uri);
                 // const audio = new Audio("https://aws-project-ahf.s3.us-east-1.amazonaws.com/86649d60-6dd3-4d07-b604-78ae5744f600.mp3");
+                await delay(4000);
                 audio = new Audio(uri);
+                console.log('created audio object');
                 // Handle any playback errors
                 audio.addEventListener('error', (e) => {
                     console.error('Error playing audio:', e);
                 });
+                console.log('added event listener');
 
                 try {
                     await audio.play();
