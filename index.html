@@ -37,9 +37,10 @@
                         <textarea class="textbox-input" id="destinationText" placeholder="Translation"
                             readonly></textarea>
                         <select class="form-select" id="destinationLanguage" name="destinationLanguage">
-                            <option value="fr">French</option>
-                            <option value="es">Spanish</option>
-                            <option value="de">German</option>
+                            <option value="fr-FR">French</option>
+                            <option value="es-ES">Spanish</option>
+                            <option value="de-DE">German</option>
+                            <option value="en-US">English</option>
                         </select>
                     </div>
                 </td>
@@ -70,121 +71,83 @@
         const pollyButton = document.getElementById('pollyButton');
 
 
-        async function translate() {
-            // Get input values
-            const sourceLang = sourceLanguageSelect.value; // Correct variable name
-            const targetLang = destinationLanguageSelect.value; // Correct variable name
-            const text = sourceText.value;
-
-            if (!text) {
-                console.log('No input text available');
-                return;
-            }
-            // Call Translate API
-            const response = await fetch('/translate', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    sourceLanguage: sourceLang,
-                    targetLanguage: targetLang,
-                    text: text
-                })
-            });
-
-            try {
-                console.log('Translate Button clicked');
-                const data = await response.json();
-                console.log(data);
-                destinationText.value = data.TranslatedText;
-                console.log('Translation applied');
-            } catch (error) {
-                console.error('Error parsing JSON:', error);
-                return;
-            }
-
-        }
-
-        translateButton.addEventListener('click', translate);
-
         function delay(ms) {
             return new Promise(resolve => setTimeout(resolve, ms));
         }
 
-        async function polly() {
+        async function translateAndPrepareAudio() {
             // Get input values
-            const targetLang = destinationLanguageSelect.value; // Correct variable name
-            const text = destinationText.value;
+            const sourceLang = sourceLanguageSelect.value; // Assuming you have this element
+            const targetLang = destinationLanguageSelect.value;
+            const text = sourceText.value; // Assuming you have a source text input
 
             if (!text) {
-                console.log('No translation available');
+                console.log('No text provided for translation');
                 return;
             }
 
-            langCode = 'fr-FR';
-            voice = 'Léa';
-            console.log('TargetLang is', targetLang);
-            switch (targetLang) {
-                case 'fr':
-                    langCode = 'fr-FR';
-                    voice = 'Mathieu';
-                    break;
-                case 'de':
-                    langCode = 'de-DE';
-                    voice = 'Vicki';
-                    break;
-                case 'es':
-                    langCode = 'es-ES';
-                    voice = 'Lupe'
-                    break;
-                default:
-                    console.error('No language specified');
-                    return;
-            }
-            // Call Polly API
-            const response = await fetch('/polly', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    languageCode: langCode,
-                    voidId: voice,
-                    text: text
-                })
-            });
-
+            // Call Translate API (now integrated with Polly)
             try {
-                console.log('Speak Button clicked');
-                const data = await response.json();
-                uri = data.OutputUri;
-                console.log('Audio file created ' + uri);
-                console.log('Type' + typeof uri);
-                // const audio = new Audio("https://aws-project-ahf.s3.us-east-1.amazonaws.com/86649d60-6dd3-4d07-b604-78ae5744f600.mp3");
-                await delay(4000);
-                audio = new Audio(uri);
-                console.log('created audio object');
-                // Handle any playback errors
-                audio.addEventListener('error', (e) => {
-                    console.error('Error playing audio:', e);
+                const response = await fetch('/translate', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        sourceLanguage: sourceLang,
+                        targetLanguage: targetLang,
+                        text: text
+                    })
                 });
-                console.log('added event listener');
 
-                try {
-                    await audio.play();
-                    console.log('Audio is playing');
-                } catch (playError) {
-                    console.error('Failed to play audio:', playError);
+                if (!response.ok) {
+                    throw new Error(`Server error: ${response.status}`);
                 }
+
+                const data = await response.json();
+                const translatedText = data.TranslatedText;
+                const presignedAudioUrl = data.PresignedAudioUrl;
+
+                // Update the UI with the translation
+                destinationText.value = translatedText; // Assuming you have this element
+
+                // Stash the pre-signed MP3 URL for the "Speak" button
+                pollyButton.dataset.audioUrl = presignedAudioUrl;
+
+                console.log('Translation complete. Audio URL stashed:', presignedAudioUrl);
             } catch (error) {
-                console.error('Error parsing JSON:', error);
-                return;
+                console.error('Error during translation and audio preparation:', error);
             }
         }
 
-        pollyButton.addEventListener('click', polly);
+        async function playAudio() {
+            const audioUrl = pollyButton.dataset.audioUrl;
 
+            if (!audioUrl) {
+                console.log('No audio file prepared yet');
+                return;
+            }
+
+            console.log('Playing audio from URL:', audioUrl);
+
+            const audio = new Audio(audioUrl);
+
+            // Handle any playback errors
+            audio.addEventListener('error', (e) => {
+                console.error('Error playing audio:', e);
+            });
+
+            try {
+                await audio.play();
+                console.log('Audio is playing');
+            } catch (playError) {
+                console.error('Failed to play audio:', playError);
+            }
+        }
+
+        // Attach event listeners
+        translateButton.addEventListener('click', translateAndPrepareAudio); // Assuming you have this element
+        pollyButton.addEventListener('click', playAudio); // Assuming you have this element
 
     </script>
 

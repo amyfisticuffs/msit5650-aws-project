@@ -1,22 +1,20 @@
-const path = require('path');
-const { fileURLTOPath } = require('url');
 const express = require('express');
-const { GetObjectCommand, S3Client } = require('@aws-sdk/client-s3');
-const { getSignedUrl, S3RequestPresigner } = require('@aws-sdk/s3-request-presigner');
 const { TranslateClient, TranslateTextCommand } = require('@aws-sdk/client-translate');
-const { StartSpeechSynthesisTaskCommand } = require('@aws-sdk/client-polly');
-const { PollyClient } = require('@aws-sdk/client-polly');
+const { PollyClient, StartSpeechSynthesisTaskCommand } = require('@aws-sdk/client-polly');
+const { S3Client, GetObjectCommand } = require('@aws-sdk/client-s3');
+const { getSignedUrl } = require('@aws-sdk/s3-request-presigner');
+
 const REGION = "us-east-1";
 
 const app = express();
-app.use(express.static('public')); // this is added!
+app.use(express.static('public'));
 app.use(express.json());
 
-
-// const client = new S3Client({ region });
 const translateClient = new TranslateClient({ region: REGION });
 const pollyClient = new PollyClient({ region: REGION });
+const s3Client = new S3Client({ region: REGION });
 
+let audioCache = {}; // In-memory cache for pre-signed URLs
 
 app.get('/', (req, res) => {
     res.sendFile(__dirname + '/index.html');
@@ -26,71 +24,65 @@ app.post('/translate', async (req, res) => {
     const { sourceLanguage, targetLanguage, text } = req.body;
 
     try {
-        const command = new TranslateTextCommand({
+        // Translate the text
+        const translateCommand = new TranslateTextCommand({
             SourceLanguageCode: sourceLanguage,
             TargetLanguageCode: targetLanguage,
             Text: text,
         });
+        const translationResponse = await translateClient.send(translateCommand);
+        const translatedText = translationResponse.TranslatedText;
 
+        // Generate MP3 with Polly
+        const pollyParams = {
+            OutputFormat: "mp3",
+            OutputS3BucketName: "aws-project-ahf",
+            LanguageCode: targetLanguage,
+            Text: translatedText,
+            TextType: "text",
+            VoiceId: getVoiceIdForLanguage(targetLanguage),
+        };
+        const pollyResponse = await pollyClient.send(new StartSpeechSynthesisTaskCommand(pollyParams));
 
-        const response = await translateClient.send(command);
-        res.status(200).json({ TranslatedText: response.TranslatedText });
+        const outputUri = pollyResponse.SynthesisTask.OutputUri;
+        const key = parseS3Url(outputUri);
+
+        // Create a pre-signed URL for the MP3
+        const presignedUrl = await getSignedUrl(
+            s3Client,
+            new GetObjectCommand({ Bucket: pollyParams.OutputS3BucketName, Key: key }),
+            { expiresIn: 3600 }
+        );
+
+        // Cache the pre-signed URL temporarily
+        audioCache[text] = presignedUrl;
+
+        res.status(200).json({ TranslatedText: translatedText, PresignedAudioUrl: presignedUrl });
     } catch (error) {
-        console.error('Translation error:', error);
-        res.status(500).json({ message: 'Translation error' });
+        console.error('Error processing translation and audio:', error);
+        res.status(500).json({ message: 'Error processing translation and audio' });
     }
 });
 
-const createPresignedUrlWithClient = ({ region, bucket, key }) => {
-    const client = new S3Client({ region });
-    const command = new GetObjectCommand({ Bucket: bucket, Key: key });
-    return getSignedUrl(client, command, { expiresIn: 3600 });
+// Endpoint for retrieving cached audio URLs (optional)
+app.get('/audio-cache', (req, res) => {
+    res.json(audioCache);
+});
+
+const getVoiceIdForLanguage = (languageCode) => {
+    const voiceMap = {
+        'fr-FR': 'Mathieu',
+        'es-ES': 'Lupe',
+        'de-DE': 'Hans',
+        'en-US': 'Joanna',
+    };
+    return voiceMap[languageCode] || 'Joanna'; // Default to English
 };
 
-function parseS3Url(s3Url) {
-    try {
-        const urlParts = new URL(s3Url);
-        const path = urlParts.pathname; // e.g., "/aws-project-ahf/020f84be-6234-42b4-887e-10a6c81c6003.mp3"
-        const key = path.substring(path.lastIndexOf('/') + 1); // Extract the filename
-        return key;
-    } catch (error) {
-        throw new Error('Invalid S3 URL format');
-    }
-}
-
-app.post('/polly', async (req, res) => {
-    const { languageCode, voidId, text } = req.body;
-
-    // Create the parameters
-    const params = {
-        OutputFormat: "mp3",
-        OutputS3BucketName: "aws-project-ahf",
-        LanguageCode: languageCode,
-        Text: text,
-        TextType: "text",
-        VoiceId: voidId,
-        SampleRate: "22050",
-    };
-
-    try {
-        const response = await pollyClient.send(new StartSpeechSynthesisTaskCommand(params));
-        const outputUri = response.SynthesisTask.OutputUri;
-        const bucketName = params.OutputS3BucketName;
-        console.log(`Success, audio file ${outputUri} added to ${bucketName}`);
-        const keyName = parseS3Url(outputUri);
-        console.log(`Bucket: ${bucketName}, Key: ${keyName}`);
-        const clientUrl = await createPresignedUrlWithClient({
-            bucket: bucketName,
-            region: REGION,
-            key: keyName,
-        });
-        // console.log(`presignedUrl: ${clientUrl}`);
-        res.status(200).json({ OutputUri: clientUrl });
-
-    } catch (err) {
-        console.log("Error putting object", err);
-    }
-});
+const parseS3Url = (s3Url) => {
+    const urlParts = new URL(s3Url);
+    return urlParts.pathname.split('/').pop();
+};
 
 const PORT = 3000;
 app.listen(PORT, () => {
