@@ -1,4 +1,6 @@
+const { fileURLTOPath } = require('url');
 const express = require('express');
+const path = require('path');
 const { TranslateClient, TranslateTextCommand } = require('@aws-sdk/client-translate');
 const { PollyClient, StartSpeechSynthesisTaskCommand } = require('@aws-sdk/client-polly');
 const { S3Client, GetObjectCommand } = require('@aws-sdk/client-s3');
@@ -74,7 +76,7 @@ const getVoiceIdForLanguage = (languageCode) => {
         'fr-FR': 'Mathieu',
         'es-ES': 'Lupe',
         'de-DE': 'Hans',
-        'en-US': 'Joanna',
+	'en-US': 'Joanna',
     };
     return voiceMap[languageCode] || 'Joanna'; // Default to English
 };

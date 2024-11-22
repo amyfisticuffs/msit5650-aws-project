@@ -22,7 +22,7 @@
 
     <!-- Form for Text Areas and Dropdowns -->
     <form id="translationForm">
-        <table>
+        <table style="width: 70%;">
             <tr>
                 <td>
                     <div class="form-group">
@@ -56,8 +56,75 @@
     <div class="spacer">
     </div>
 
+    <div>
+        <h2>Common Phrases</h2>
+        <table border="1" style="width: 70%; border-collapse: collapse; text-align: left;">
+            <thead>
+                <tr>
+                    <th>English</th>
+                    <th>Spanish</th>
+                    <th>German</th>
+                    <th>French</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Hello, how are you?</td>
+                    <td>Hola, ¿cómo estás?</td>
+                    <td>Hallo, wie geht's dir?</td>
+                    <td>Bonjour, comment ça va ?</td>
+                </tr>
+                <tr>
+                    <td>Thank you very much!</td>
+                    <td>¡Muchas gracias!</td>
+                    <td>Vielen Dank!</td>
+                    <td>Merci beaucoup !</td>
+                </tr>
+                <tr>
+                    <td>Where is the restroom?</td>
+                    <td>¿Dónde está el baño?</td>
+                    <td>Wo ist die Toilette?</td>
+                    <td>Où sont les toilettes ?</td>
+                </tr>
+                <tr>
+                    <td>How much does it cost?</td>
+                    <td>¿Cuánto cuesta?</td>
+                    <td>Wie viel kostet das?</td>
+                    <td>Combien ça coûte ?</td>
+                </tr>
+                <tr>
+                    <td>I don’t understand.</td>
+                    <td>No entiendo.</td>
+                    <td>Ich verstehe nicht.</td>
+                    <td>Je ne comprends pas.</td>
+                </tr>
+                <tr>
+                    <td>Can you help me?</td>
+                    <td>¿Puedes ayudarme?</td>
+                    <td>Können Sie mir helfen?</td>
+                    <td>Pouvez-vous m'aider ?</td>
+                </tr>
+                <tr>
+                    <td>I’m lost.</td>
+                    <td>Estoy perdido/a.</td>
+                    <td>Ich habe mich verlaufen.</td>
+                    <td>Je suis perdu(e).</td>
+                </tr>
+                <tr>
+                    <td>Have a nice day!</td>
+                    <td>¡Que tengas un buen día!</td>
+                    <td>Einen schönen Tag noch!</td>
+                    <td>Bonne journée !</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="spacer">
+    </div>
+
     <footer>
-        <p>Copyright &#169 LingoSphere</p>
+        <p>Copyright &#169 LingoSphere, IP 10.10.4.172</p>
     </footer>
 
 
@@ -71,8 +138,15 @@
         const pollyButton = document.getElementById('pollyButton');
 
 
-        function delay(ms) {
-            return new Promise(resolve => setTimeout(resolve, ms));
+        function disableButtonForSeconds(buttonElement, seconds) {
+            buttonElement.disabled = true; // Disable the button
+
+            setTimeout(() => {
+
+                buttonElement.disabled = false; // Enable the button after the delay
+
+            }, seconds * 1000); // Convert seconds to milliseconds
+
         }
 
         async function translateAndPrepareAudio() {
@@ -113,6 +187,7 @@
 
                 // Stash the pre-signed MP3 URL for the "Speak" button
                 pollyButton.dataset.audioUrl = presignedAudioUrl;
+                disableButtonForSeconds(pollyButton, 4);
 
                 console.log('Translation complete. Audio URL stashed:', presignedAudioUrl);
             } catch (error) {
