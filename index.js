@@ -6,12 +6,15 @@ const { PollyClient, StartSpeechSynthesisTaskCommand } = require('@aws-sdk/clien
 const { S3Client, GetObjectCommand } = require('@aws-sdk/client-s3');
 const { getSignedUrl } = require('@aws-sdk/s3-request-presigner');
 
+// Define AWS region for the services
 const REGION = "us-east-1";
 
+// Boilerplate for Express initialization
 const app = express();
 app.use(express.static('public'));
 app.use(express.json());
 
+// Initialize AWS clients for Translate, Polly, and S3
 const translateClient = new TranslateClient({ region: REGION });
 const pollyClient = new PollyClient({ region: REGION });
 const s3Client = new S3Client({ region: REGION });
@@ -22,6 +25,7 @@ app.get('/', (req, res) => {
     res.sendFile(__dirname + '/index.html');
 });
 
+// Endpoint for handling text translation and audio generation
 app.post('/translate', async (req, res) => {
     const { sourceLanguage, targetLanguage, text } = req.body;
 
@@ -66,7 +70,7 @@ app.post('/translate', async (req, res) => {
     }
 });
 
-// Endpoint for retrieving cached audio URLs (optional)
+// Endpoint for retrieving cached audio URLs
 app.get('/audio-cache', (req, res) => {
     res.json(audioCache);
 });
@@ -76,7 +80,7 @@ const getVoiceIdForLanguage = (languageCode) => {
         'fr-FR': 'Mathieu',
         'es-ES': 'Lupe',
         'de-DE': 'Hans',
-	'en-US': 'Joanna',
+        'en-US': 'Joanna',
     };
     return voiceMap[languageCode] || 'Joanna'; // Default to English
 };

@@ -1,6 +1,10 @@
-var http = require('http');
+const express = require('express');
+const app = express();
 
-http.createServer(function (req, res) {
-  res.writeHead(200, {'Content-Type': 'text/html'});
-  res.end('Hello World!');
-}).listen(8080);
+app.get('/', (req, res) => {
+    res.send('Hello, LingoSphere!');
+});
+
+app.listen(3000, () => {
+    console.log('Node.js app running on http://localhost:3000');
+});

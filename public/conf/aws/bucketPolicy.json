@@ -1,0 +1,24 @@
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Sid": "AllowPublicReadAccessForPreSignedURLs",
+            "Effect": "Allow",
+            "Principal": "*",
+            "Action": "s3:GetObject",
+            "Resource": "arn:aws:s3::0123456789012:aws-project-ahf/*"
+        },
+        {
+            "Sid": "AllowEC2PutObject",
+            "Effect": "Allow",
+            "Principal": {
+                "AWS": "arn:aws:iam::0123456789012:role/EC2-Translate-Access-Role"
+            },
+            "Action": [
+                "s3:GetObject",
+                "s3:PutObject"
+            ],
+            "Resource": "arn:aws:s3:::aws-project-ahf/*"
+        }
+    ]
+}
