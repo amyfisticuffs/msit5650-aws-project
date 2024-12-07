@@ -1,5 +1,5 @@
 # Project Summary: LingoSphere
-## Final project in AWS for MSIT5650 Cloud Computing
+**Final project in AWS for MSIT5650 Cloud Computing**
 
 I developed an AWS-based language learning application, **LingoSphere**, that integrates both IaaS and SaaS solutions. 
 
