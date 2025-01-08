@@ -14,6 +14,8 @@ On the SaaS side, the application incorporates:
 - **Amazon Translate** for real-time text translation.
 - **Amazon Polly** for generating lifelike speech.
 
+![alt text](https://amyfisticuffs.github.io/images/archDiagram.jpeg)
+
 ## Application Workflow
 The application workflow includes:
 1. A user enters text in one language, selects a target language, and clicks **Translate**.
