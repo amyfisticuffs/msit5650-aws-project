@@ -23,6 +23,8 @@ The application workflow includes:
 3. The translated text is sent to **Amazon Polly**, which generates an MP3 file stored in **S3**.
 4. The translated text is displayed, and the user can play the spoken translation via an audio button.
 
+![alt text](https://amyfisticuffs.github.io/images/infoFlowDiagram.jpeg)
+
 ## Security Practices
 To secure the application:
 - Acquired an **SSL/TLS certificate** and registered a domain with **Route 53**, enabling encrypted HTTPS access.
@@ -32,6 +34,8 @@ To secure the application:
 - Established a **bastion host** for managing backend servers, accessible only from my machine’s IP address.
 - Placed backend servers in a private subnet with a **NAT gateway** for secure outbound connections.
 - Utilized **IAM roles** instead of static security credentials to interact with AWS resources, safeguarding sensitive credentials.
+
+![alt text](https://amyfisticuffs.github.io/images/policies-and-roles.png)
 
 ---
 
