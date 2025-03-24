@@ -1,3 +1,4 @@
+public/css/* linguist-vendored
 *.js linguist-detectable
 *.json linguist-detectable
 *.html linguist-detectable
